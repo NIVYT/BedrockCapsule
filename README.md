@@ -1,37 +1,66 @@
-# NIVYT Backup Copilot
+<div align="center">
+  <img src="logo.ico" alt="BedrockCapsule Logo" width="120" />
+  <h1>📦 BedrockCapsule</h1>
+  <p><strong>Automated, lightweight world backup & rollback utility for Minecraft Bedrock on Windows.</strong></p>
+  
+  <p>
+    <a href="https://github.com/NIVYT/BedrockCapsule/releases"><img src="https://img.shields.io/github/v/release/NIVYT/BedrockCapsule?color=blue&style=for-the-badge" alt="Release" /></a>
+    <a href="https://discord.com"><img src="https://img.shields.io/badge/Discord-Integration-7289DA?style=for-the-badge&logo=discord" alt="Discord Integration" /></a>
+    <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.10+-yellow?style=for-the-badge&logo=python" alt="Python Version" /></a>
+  </p>
+</div>
 
-**Automatic Minecraft Bedrock world backups for Windows — zero setup, one-click recovery.**
+---
 
-NIVYT Backup Copilot runs quietly in the background, detects the moment Minecraft Bedrock closes, and saves a timestamped backup of your world automatically. If a world ever gets corrupted, deleted, or messed up by a bad update, you can restore it in one click — no manual file copying, no digging through AppData folders.
+BedrockCapsule runs silently in the background while you play. When you close Minecraft, it automatically captures and archives a timestamped snapshot of your world, logs your playtime, and notifies your private Discord channel.
 
-## Features
+## ✨ Features
+- 🔄 **Auto-Pilot Backups**: Automatically detects your most recently played world and backs it up the moment you exit the game.
+- 🕒 **Time Machine UI**: View, manage, and instantly restore past versions of your worlds through a sleek desktop interface.
+- 💾 **Smart Storage**: Prevents clutter by limiting maximum backups per world (default: 5) and overwriting the oldest snapshots.
+- 📊 **Session Analytics**: Tracks exactly how long you spent in your world during your play session.
+- 🤖 **Discord Integration**: Delivers clean, real-time backup confirmation cards to your Discord server via the secure BedrockCapsule gateway.
+- 📊 **Session Analytics**: Tracks session history, playtime duration, and total archived states.
+- 🛡️ **Zero Overhead**: Uses native Windows APIs and `psutil` process scanning for minimal CPU & RAM usage.
 
-- **Automatic detection** — backs up the instant Minecraft Bedrock closes, no commands or buttons needed
-- **Timestamped backups** — every backup is saved with a clear date/time so you can find the version you want
-- **One-click restore** — roll back to any previous backup instantly
-- **Discord backup logs** — optional Discord bot integration posts a log every time a backup runs, so you always know it's working
-- **Lightweight** — runs silently in the background with minimal resource use
+## 🏗️ Architecture
 
-## Installation
+```mermaid
+graph TD
+    A[Minecraft Bedrock] -->|Process Exit Detected| B[BedrockCapsule Desktop Engine]
+    B -->|Compress & Rotate| C[(Local Backup Zip)]
+    B -->|HTTP POST Payload| D[BedrockCapsule Gateway]
+    D -->|Discord API| E[#world-backup-updates]
+    
+    style B fill:#2b5876,stroke:#4e4376,color:#fff
+    style D fill:#2b5876,stroke:#4e4376,color:#fff
+```
 
-1. Download the latest installer: [`NIVYT_Backup_Copilot_Setup_v2.0.exe`](./NIVYT_Backup_Copilot_Setup_v2.0.exe)
-2. Run the installer and follow the prompts
-3. Launch NIVYT Backup Copilot — it will run in the background automatically
-4. (Optional) Add your Discord webhook URL in settings to get backup notifications
+## 🚀 Getting Started
 
-## How it works
+### Prerequisites
+- **OS:** Windows 10 or 11
+- **Game:** Minecraft Bedrock Edition (Standard or Preview)
+- **Environment:** Python 3.10+ (If running from source)
 
-NIVYT Backup Copilot watches for the Minecraft Bedrock process. When it detects the game has closed, it copies your active world save to a local backup folder, tagged with the date and time. Old backups can be configured to rotate automatically so you don't run out of disk space.
+### 🛠️ Running from Source
+1. Clone the repository and navigate to the folder.
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Run the engine:
+   ```bash
+   python main.py
+   ```
 
-## FAQ
+### 📦 Building the Executable & Installer
+Use the provided batch script to build a standalone `.exe` and a Windows Installer using PyInstaller and Inno Setup.
+```cmd
+.\build.bat
+```
+- **Executable output:** `dist/BedrockCapsule_2.1.exe`
+- **Installer output:** `Output/BedrockCapsule_Setup_v2.1.exe`
 
-**Does this work with Minecraft Java Edition?**
-No — this tool is built specifically for Minecraft Bedrock on Windows.
-
-**Where are backups stored?**
-Locally on your machine, in a configurable backup folder (default location shown in Settings).
-
-**Is this safe to run?**
-[Add details here: what the exe does, what permissions it needs, whether it's code-signed, and a link to source code if/when available.]
-
-## License
+## 👨‍💻 Developer & Credits
+Created by **NIVYT** • Built for the Minecraft Bedrock community.
