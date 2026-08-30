@@ -1,66 +1,181 @@
 <div align="center">
   <img src="logo.ico" alt="BedrockCapsule Logo" width="120" />
-  <h1>📦 BedrockCapsule</h1>
-  <p><strong>Automated, lightweight world backup & rollback utility for Minecraft Bedrock on Windows.</strong></p>
+  <h1>📦 BedrockCapsule v2.1</h1>
+  <p><strong>Automated, lightweight world backup, encryption & rollback utility for Minecraft Bedrock on Windows.</strong></p>
   
   <p>
-    <a href="https://github.com/NIVYT/BedrockCapsule/releases"><img src="https://img.shields.io/github/v/release/NIVYT/BedrockCapsule?color=blue&style=for-the-badge" alt="Release" /></a>
-    <a href="https://discord.com"><img src="https://img.shields.io/badge/Discord-Integration-7289DA?style=for-the-badge&logo=discord" alt="Discord Integration" /></a>
-    <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.10+-yellow?style=for-the-badge&logo=python" alt="Python Version" /></a>
+    <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/Release_Notes-v2.1-orange?style=for-the-badge" alt="Release Notes" /></a>
+    <a href="https://github.com/NIVYT/BedrockCapsule/releases"><img src="https://img.shields.io/badge/Version-v2.1-blue?style=for-the-badge&logo=github" alt="Version 2.1" /></a>
+    <a href="https://discord.com"><img src="https://img.shields.io/badge/Discord-Integration-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord Integration" /></a>
+    <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.10+-yellow?style=for-the-badge&logo=python&logoColor=white" alt="Python Version" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT" /></a>
   </p>
 </div>
 
 ---
 
-BedrockCapsule runs silently in the background while you play. When you close Minecraft, it automatically captures and archives a timestamped snapshot of your world, logs your playtime, and notifies your private Discord channel.
+## 🌟 Overview
+
+**BedrockCapsule** is a companion desktop utility for Minecraft Bedrock Edition players on Windows. It silently monitors your play sessions in the background, automatically capturing timestamped backups the moment you close the game. Whether you encounter world corruption, accidental explosions, or want to branch your survival world, BedrockCapsule gives you instant rollback capability.
+
+> [!NOTE]
+> ### 📢 Rebranding Announcement
+> **BedrockCapsule** was originally developed and released under the name **NIVYT Backup Copilot**. 
+> As the project matured from a personal script into a full-featured, open-source desktop ecosystem with automated LevelDB protection, capsule encryption, `.mcworld` exporting, and Discord integration, it was rebranded to **BedrockCapsule** to better reflect its identity as a dedicated capsule backup system for the entire Minecraft Bedrock community.
+
+---
 
 ## ✨ Features
-- 🔄 **Auto-Pilot Backups**: Automatically detects your most recently played world and backs it up the moment you exit the game.
-- 🕒 **Time Machine UI**: View, manage, and instantly restore past versions of your worlds through a sleek desktop interface.
-- 💾 **Smart Storage**: Prevents clutter by limiting maximum backups per world (default: 5) and overwriting the oldest snapshots.
-- 📊 **Session Analytics**: Tracks exactly how long you spent in your world during your play session.
-- 🤖 **Discord Integration**: Delivers clean, real-time backup confirmation cards to your Discord server via the secure BedrockCapsule gateway.
-- 📊 **Session Analytics**: Tracks session history, playtime duration, and total archived states.
-- 🛡️ **Zero Overhead**: Uses native Windows APIs and `psutil` process scanning for minimal CPU & RAM usage.
+
+- 🔄 **Auto-Pilot Backups**: Automatically identifies your active world by checking `levelname.txt` and timestamp updates, taking a clean snapshot when Minecraft closes.
+- ⏪ **One-Click Rollback & Restore**: Restore any archived snapshot directly into your Minecraft worlds directory with built-in safety rollback in case of decompression errors.
+- 📤 **Export to `.mcworld`**: Export any snapshot directly to a universal `.mcworld` file for sharing with friends or importing into other devices.
+- 🔒 **Capsule Encryption**: Optional custom XOR encryption passkey to protect your world files and sensitive maps from unauthorized access.
+- 🌓 **Dark & Light Mode UI**: Beautiful, frameless desktop interface with glassmorphic elements, dynamic status badges, and smooth theme switching.
+- 🔔 **Discord Webhook Gateway**: Sends rich embed status cards to your Discord channel showing world name, backup size, trigger type, and timestamp.
+- 🗂️ **Smart Storage Rotation**: Configurable snapshot retention limit per world (default: 5) to save disk space while keeping critical checkpoints.
+- 📌 **System Tray Daemon**: Sits quietly in the Windows system tray with quick-action shortcuts for manual backups and instant directory access.
+- ⚡ **Zero Game Lag**: Uses minimal memory and non-intrusive `psutil` process polling with zero game overhead.
+
+---
 
 ## 🏗️ Architecture
 
 ```mermaid
 graph TD
-    A[Minecraft Bedrock] -->|Process Exit Detected| B[BedrockCapsule Desktop Engine]
-    B -->|Compress & Rotate| C[(Local Backup Zip)]
-    B -->|HTTP POST Payload| D[BedrockCapsule Gateway]
-    D -->|Discord API| E[#world-backup-updates]
+    A[Minecraft Bedrock Edition] -->|Process Exit Detected| B[BedrockCapsule Desktop Engine]
+    B -->|LevelDB Lock Check| C{World Directory Ready?}
+    C -->|Yes| D[Zip Compressor & Archiver]
+    D -->|Optional| E[XOR Capsule Encryptor]
+    E --> F[(Local Capsule Storage)]
+    F -->|Rotate Over Max Limit| G[Oldest Backup Pruned]
+    B -->|HTTP Payload| H[BedrockCapsule Gateway]
+    H -->|Discord API| I[#world-backups Channel]
     
-    style B fill:#2b5876,stroke:#4e4376,color:#fff
-    style D fill:#2b5876,stroke:#4e4376,color:#fff
+    style B fill:#1e293b,stroke:#3b82f6,color:#fff
+    style D fill:#1e293b,stroke:#10b981,color:#fff
+    style H fill:#1e293b,stroke:#6366f1,color:#fff
 ```
+
+---
+
+## 📁 Project Structure
+
+```
+BedrockCapsule/
+├── main.py                  # Core desktop engine & PyWebView bridge
+├── index.html               # Modern reactive dashboard UI
+├── logo.ico                 # Application icon & branding
+├── requirements.txt         # Root Python dependencies
+├── build.bat                # Automated one-click build script (PyInstaller + Inno Setup)
+├── setup.iss                # Inno Setup Windows installer script
+├── BedrockCapsule_2.1.spec  # PyInstaller packaging configuration
+├── server/
+│   ├── server.py            # FastAPI Discord notification gateway
+│   └── requirements.txt     # Gateway microservice dependencies
+└── README.md                # Documentation & guides
+```
+
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- **OS:** Windows 10 or 11
-- **Game:** Minecraft Bedrock Edition (Standard or Preview)
-- **Environment:** Python 3.10+ (If running from source)
+- **Operating System:** Windows 10 or 11 (64-bit)
+- **Minecraft:** Minecraft Bedrock Edition (UWP Standard or Preview)
+- **Python:** Python 3.10+ *(Only required if running from source)*
+- **Microsoft Edge WebView2 Runtime** *(Pre-installed on modern Windows 10/11)*
 
-### 🛠️ Running from Source
-1. Clone the repository and navigate to the folder.
-2. Install dependencies:
+---
+
+### 📥 Option 1: Installer (Recommended for Users)
+1. Download `BedrockCapsule_Setup_v2.1.exe` from the [Releases](https://github.com/NIVYT/BedrockCapsule/releases) page.
+2. Run the installer and follow the setup wizard.
+3. Check **"Launch on Windows startup"** if you want automated silent backups in the background.
+
+---
+
+### 🛠️ Option 2: Running from Source
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/NIVYT/BedrockCapsule.git
+   cd BedrockCapsule
+   ```
+2. Install the required Python dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-3. Run the engine:
+3. Run the desktop application:
    ```bash
    python main.py
    ```
 
-### 📦 Building the Executable & Installer
-Use the provided batch script to build a standalone `.exe` and a Windows Installer using PyInstaller and Inno Setup.
-```cmd
-.\build.bat
-```
-- **Executable output:** `dist/BedrockCapsule_2.1.exe`
-- **Installer output:** `Output/BedrockCapsule_Setup_v2.1.exe`
+---
 
-## 👨‍💻 Developer & Credits
-Created by **NIVYT** • Built for the Minecraft Bedrock community.
+### 🔨 Building the Standalone Executable & Installer
+To compile your own `.exe` and setup installer:
+1. Ensure [Inno Setup 6](https://jrsoftware.org/isinfo.php) is installed.
+2. Run the automated build script:
+   ```cmd
+   .\build.bat
+   ```
+3. The compiled binaries will be output to:
+   - **Standalone Executable:** `dist/BedrockCapsule_2.1.exe`
+   - **Setup Installer:** `Output/BedrockCapsule_Setup_v2.1.exe`
+
+---
+
+## ⚙️ Configuration & Customization
+
+All application settings are stored locally in:
+```
+%APPDATA%\BedrockCapsule\config.json
+```
+
+| Setting | Default | Description |
+| :--- | :--- | :--- |
+| `max_backups` | `5` | Maximum number of snapshots preserved per world before auto-pruning. |
+| `theme` | `"dark"` | UI theme preference (`"dark"` or `"light"`). |
+| `encryption_key` | `""` | Optional passkey for XOR capsule encryption. |
+| `custom_world_dir` | `""` | Custom world folder path (if not using default UWP Minecraft directory). |
+
+---
+
+## 🌐 Server Gateway (Optional Discord Notifications)
+
+If you'd like to self-host the Discord notification microservice:
+1. Navigate to the `server/` directory.
+2. Deploy to [Render](https://render.com/), [Railway](https://railway.app/), or your own VPS.
+3. Set the environment variable:
+   ```env
+   DISCORD_BOT_TOKEN=your_discord_bot_token_here
+   ```
+4. Start the gateway:
+   ```bash
+   uvicorn server:app --host 0.0.0.0 --port 8000
+   ```
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!
+Feel free to check the [issues page](https://github.com/NIVYT/BedrockCapsule/issues) if you want to contribute.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+Distributed under the **MIT License**. See `LICENSE` for more information.
+
+---
+
+<div align="center">
+  <p>Crafted with ❤️ by <strong>NIVYT</strong> for the Minecraft Bedrock Community.</p>
+</div>
