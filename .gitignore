@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# PyInstaller & Build artifacts
+build/
+dist/
+Output/
+*.spec.bak
+setup.iss
+
+# Private / Server microservice
+server/
+
+# PyWebView / WebView2 temporary runtimes & caches
+EBWebView/
+*.tmp
+
+# Operating System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# IDE & Editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

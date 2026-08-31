@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BedrockCapsule 2.1</title>
+    <style>
+        /* FIXED THEME ENGINE: Explicit targeting prevents Windows WebView caching bugs */
+        [data-theme="light"] {
+            color-scheme: light;
+            --bg-base: #e5e7eb; --bg-app: #ffffff; --bg-card: #f9fafb; --bg-card-hover: #f3f4f6;
+            --bg-sidebar: #f3f4f6; --text-main: #111827; --text-muted: #6b7280; --border-light: #d1d5db;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --accent-primary: #3b82f6; --accent-hover: #2563eb;
+            --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --danger-hover: #dc2626;
+            --discord: #5865F2; --discord-hover: #4752C4;
+        }
+
+        [data-theme="dark"] {
+            color-scheme: dark;
+            --bg-base: #121212; --bg-app: #1e1e1e; --bg-card: #2d2d2d; --bg-card-hover: #383838;
+            --bg-sidebar: #181818; --text-main: #f3f4f6; --text-muted: #9ca3af; --border-light: #374151;
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --accent-primary: #3b82f6; --accent-hover: #2563eb;
+            --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --danger-hover: #dc2626;
+            --discord: #5865F2; --discord-hover: #4752C4;
+        }
+
+        /* SLEEK APP SCROLLBARS */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: var(--border-light); border-radius: 10px; }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb { background-color: #4b5563; }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; transition: background-color 0.2s, color 0.2s, border-color 0.2s; user-select: none; margin: 0; padding: 0; }
+        body { background-color: transparent; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden;}
+
+        .app-container {
+            width: 100vw; height: 100vh; max-width: 750px; max-height: 600px;
+            background-color: var(--bg-base); display: flex; flex-direction: column; 
+            border-radius: 12px; overflow: hidden; border: 1px solid var(--border-light);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        }
+
+        .titlebar {
+            height: 32px; background-color: var(--bg-base); display: flex; 
+            justify-content: space-between; align-items: center; width: 100%; flex-shrink: 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .title-left { display: flex; align-items: center; padding-left: 12px; gap: 8px; }
+        .title-logo { width: 16px; height: 16px; object-fit: contain; }
+        .title-text { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+        .window-controls { display: flex; height: 100%; }
+        .win-btn { 
+            width: 46px; height: 100%; background: transparent; border: none; color: var(--text-muted); 
+            font-size: 14px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: none;
+        }
+        .win-btn:hover { background-color: var(--border-light); color: var(--text-main); }
+        .win-btn.close:hover { background-color: #e81123; color: white; }
+
+        .app-body { display: flex; height: calc(100% - 32px); position: relative; background-color: var(--bg-app); }
+
+        .sidebar {
+            width: 210px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border-light);
+            display: flex; flex-direction: column; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0; z-index: 10;
+        }
+        .sidebar.collapsed { width: 68px; }
+        
+        .sidebar-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; height: 55px;}
+        .sidebar-title { font-weight: 800; font-size: 15px; color: var(--text-main); white-space: nowrap; overflow: hidden; opacity: 1; transition: opacity 0.2s;}
+        .sidebar.collapsed .sidebar-title { opacity: 0; pointer-events: none; width: 0; }
+        
+        .toggle-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 6px; flex-shrink: 0; }
+        .toggle-btn:hover { color: var(--text-main); background-color: var(--bg-card-hover); }
+
+        .nav-list { display: flex; flex-direction: column; gap: 4px; padding: 10px; flex: 1; }
+        .nav-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px; 
+            color: var(--text-muted); border-radius: 8px; cursor: pointer; white-space: nowrap; overflow: hidden; transition: all 0.2s ease;
+        }
+        .nav-item:hover { background-color: var(--bg-card); color: var(--text-main); }
+        .nav-item.active { background-color: var(--bg-card); color: var(--accent-primary); font-weight: 600; border-left: 3px solid var(--accent-primary); border-top-left-radius: 4px; border-bottom-left-radius: 4px;}
+        .nav-icon { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; flex-shrink: 0; }
+        .nav-text { transition: opacity 0.2s; font-size: 14px; opacity: 1; }
+        .sidebar.collapsed .nav-text { opacity: 0; pointer-events: none; width: 0; }
+
+        /* FIXED OVERLAP BUG: Panels now handle their own internal scrolling */
+        .content-area { flex: 1; padding: 25px 30px 15px 30px; background-color: var(--bg-app); position: relative; display: flex; flex-direction: column; overflow: hidden;}
+        
+        .view-panel { display: none; flex-direction: column; gap: 15px; animation: fadeIn 0.2s ease-out; flex: 1; overflow-y: auto; padding-right: 5px; }
+        .view-panel.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { font-size: 26px; font-weight: 800; color: var(--text-main); margin-bottom: 5px; margin-top: -5px; flex-shrink: 0;}
+        .card { background-color: var(--bg-app); border: 1px solid var(--border-light); border-radius: 8px; padding: 18px; box-shadow: var(--shadow-sm); flex-shrink: 0;}
+        .card-header { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+        .card-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+
+        .alert-banner {
+            background-color: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); color: var(--warning);
+            padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; flex-shrink: 0;
+        }
+
+        .input-row { display: flex; gap: 10px; align-items: center;}
+        input[type="text"], input[type="number"], input[type="password"] { 
+            width: 100%; background-color: var(--bg-card); color: var(--text-main); 
+            border: 1px solid var(--border-light); padding: 10px 14px; border-radius: 6px; 
+            font-size: 13px; font-weight: 500; outline: none; margin-bottom: 0px;
+        }
+        input:focus { border-color: var(--accent-primary); }
+
+        .custom-select-wrapper { position: relative; flex: 1; user-select: none; }
+        .custom-select-trigger {
+            background-color: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-light);
+            padding: 10px 14px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center; height: 42px; transition: 0.2s;
+        }
+        .custom-select-trigger:hover { border-color: var(--accent-primary); }
+        .custom-options {
+            position: absolute; display: none; top: 100%; left: 0; right: 0; background: var(--bg-app);
+            border: 1px solid var(--border-light); border-radius: 6px; margin-top: 4px; z-index: 100; box-shadow: var(--shadow-md);
+            max-height: 150px; overflow-y: auto;
+        }
+        .custom-options.open { display: block; }
+        .custom-option { padding: 12px 14px; font-size: 13px; color: var(--text-main); cursor: pointer; border-bottom: 1px solid var(--border-light); transition: 0.1s;}
+        .custom-option:last-child { border-bottom: none; }
+        .custom-option:hover { background-color: var(--accent-primary); color: white; }
+
+        .btn { background-color: var(--accent-primary); color: #ffffff; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; flex: 1; display: flex; justify-content: center; align-items: center; box-shadow: var(--shadow-sm); transition: 0.2s;}
+        .btn:hover { background-color: var(--accent-hover); }
+        .btn-danger { background-color: var(--danger); color: #ffffff; }
+        .btn-danger:hover { background-color: var(--danger-hover); }
+        .btn-outline { background-color: var(--bg-card); border: 1px solid var(--border-light); color: var(--text-main); display: flex; align-items: center; justify-content: center;}
+        .btn-outline:hover { background-color: var(--bg-card-hover); border-color: var(--accent-primary); color: var(--accent-primary); }
+        
+        .btn-folder-action { width: 45px; height: 45px; flex-shrink: 0; border-radius: 6px; color: var(--text-muted); cursor: pointer; display: flex; justify-content: center; align-items: center; padding: 0; background-color: var(--bg-card); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); transition: 0.2s; }
+        .btn-folder-action:hover { color: var(--accent-primary); border-color: var(--accent-primary); }
+
+        .btn-discord { background-color: var(--discord); width: 100%; font-size: 14px; color: white; border: none; padding: 14px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s;}
+        .btn-discord:hover { background-color: var(--discord-hover); }
+        
+        .switch-container { display: flex; align-items: center; justify-content: space-between;}
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #d1d5db; border-radius: 24px; transition: .3s; }
+        [data-theme="dark"] .slider { background-color: #4b5563; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: .3s ease; }
+        input:checked + .slider { background-color: var(--accent-primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .archive-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px;}
+        .archive-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border: 1px solid var(--border-light); border-radius: 8px; background: var(--bg-app); box-shadow: var(--shadow-sm); gap: 12px; }
+        .archive-info { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+        .archive-name { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; color: var(--text-main);}
+        .archive-name span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .archive-date { font-size: 12px; font-weight: 500; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .archive-actions { display: flex; gap: 8px; flex-shrink: 0; }
+        .icon-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 4px; flex-shrink: 0;}
+        .icon-btn:hover { color: var(--accent-primary); background: var(--bg-card-hover); }
+
+        .log-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border-light); border-radius: 6px; background: var(--bg-card); gap: 12px; flex-shrink: 0;}
+        .log-info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0;}
+        .log-world { font-size: 13px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .log-date { font-size: 11px; color: var(--text-muted); }
+        .log-badge { font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 4px; white-space: nowrap; }
+        .log-badge.success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .log-badge.skipped { background: rgba(107, 114, 128, 0.15); color: var(--text-muted); }
+
+        .status-text { font-size: 12px; color: var(--text-muted); text-align: center; font-weight: 600; margin-top: 5px; flex-shrink: 0; }
+        #backup .center-wrapper { margin: auto 0; display: flex; flex-direction: column; gap: 16px; flex-shrink: 0;}
+        
+        /* FOOTER LOCKED TO BOTTOM: Impossible to overlap */
+        .footer { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 15px; font-weight: 500; flex-shrink: 0;}
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="titlebar pywebview-drag-region">
+        <div class="title-left">
+            <img src="logo.ico" alt="Logo" class="title-logo">
+            <span class="title-text">BedrockCapsule 2.1</span>
+        </div>
+        <div class="window-controls">
+            <button class="win-btn" onclick="window.pywebview && window.pywebview.api && window.pywebview.api.minimize_window()">—</button>
+            <button class="win-btn close" onclick="window.pywebview && window.pywebview.api && window.pywebview.api.close_window()">✕</button>
+        </div>
+    </div>
+
+    <div class="app-body">
+        <nav class="sidebar collapsed" id="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-title">Menu</span>
+                <button class="toggle-btn" onclick="toggleSidebar()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="nav-list">
+                <div class="nav-item active" onclick="switchView('backup', this)">
+                    <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg></div>
+                    <span class="nav-text">Backup Hub</span>
+                </div>
+                <div class="nav-item" onclick="switchView('restore', this)">
+                    <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+                    <span class="nav-text">Time Machine</span>
+                </div>
+                <div class="nav-item" onclick="switchView('tracker', this)">
+                    <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
+                    <span class="nav-text">Session Tracker</span>
+                </div>
+                <div class="nav-item" onclick="switchView('settings', this)">
+                    <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>
+                    <span class="nav-text">Preferences</span>
+                </div>
+            </div>
+            
+            <div style="padding: 10px; margin-top: auto; border-top: 1px solid var(--border-light);">
+                <div class="nav-item" onclick="openExternal('https://discord.com/users/NIVYT')" style="color: var(--discord);">
+                    <div class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+                    </div>
+                    <span class="nav-text" style="font-weight: 600;">Contact Dev</span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="content-area">
+            <div class="view-panel active" id="backup">
+                <div class="center-wrapper">
+                    <h2>Backup Hub</h2>
+                    
+                    <div class="card">
+                        <div class="card-header">Target World</div>
+                        <div class="card-sub">Select the Minecraft world directory to synchronize.</div>
+                        <div class="input-row">
+                            <div class="custom-select-wrapper" id="world-select-wrapper">
+                                <div class="custom-select-trigger" onclick="toggleSelect('world-options')">
+                                    <span id="world-selected-text">Scanning...</span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                                </div>
+                                <div class="custom-options" id="world-options">
+                                    <div class="custom-option">Scanning...</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline" style="width: 42px; height: 42px; padding: 0; flex: none;" onclick="refreshWorldsUI()" title="Refresh Worlds">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.92-10.44l5.36 5.36"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="switch-container">
+                            <div>
+                                <div class="card-header">Auto-Pilot Mode</div>
+                                <div class="card-sub" style="margin:0;">Triggers backup automatically when game closes.</div>
+                            </div>
+                            <label class="switch"><input type="checkbox" id="auto-pilot-toggle" onchange="toggleAutoPilotUI()"><span class="slider"></span></label>
+                        </div>
+                    </div>
+                    
+                    <div class="input-row" style="margin-top: 5px;">
+                        <button class="btn" style="height: 45px; font-size: 15px;" id="backup-btn" onclick="startBackupUI()">Run Manual Backup</button>
+                        <button class="btn-folder-action" onclick="window.pywebview && window.pywebview.api && window.pywebview.api.open_backup_directory(selectedWorld)" title="Open Local Backups Folder">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                        </button>
+                    </div>
+                    
+                    <div class="status-text" id="global-status">System ready.</div>
+                </div>
+            </div>
+
+            <div class="view-panel" id="restore">
+                <h2>Time Machine</h2>
+                <div class="alert-banner">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <span><strong>Warning:</strong> Restoring an archive will irreversibly overwrite your current world state. Ensure Minecraft is fully closed before proceeding.</span>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Recovery Frame</div>
+                    <div class="card-sub">Select an archived state to export or roll back to.</div>
+                    <div class="archive-list" id="archive-list-container">
+                        <div class="archive-item"><div class="archive-info"><div class="archive-name"><span>No archives found.</span></div></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view-panel" id="tracker">
+                <h2>Session Analytics</h2>
+                <div style="display: flex; gap: 12px; margin-bottom: 15px;">
+                    <div class="card" style="flex: 1; text-align: center; padding: 25px 15px;">
+                        <div class="card-sub" style="margin:0;">Total Playtime</div>
+                        <div style="font-size: 26px; font-weight: 800; color: var(--accent-primary);" id="total-playtime">0.0 Hrs</div>
+                    </div>
+                    <div class="card" style="flex: 1; text-align: center; padding: 25px 15px;">
+                        <div class="card-sub" style="margin:0;">Stored Snapshots</div>
+                        <div style="font-size: 26px; font-weight: 800; color: var(--accent-primary);" id="total-saves">0</div>
+                    </div>
+                </div>
+                <div class="card" style="padding: 0; display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+                    <div class="card-header" style="padding: 15px 15px 10px 15px; margin: 0; border-bottom: 1px solid var(--border-light);">Recent Sessions</div>
+                    <div id="session-logs-container" style="overflow-y: auto; flex: 1; padding: 10px 15px; display: flex; flex-direction: column; gap: 8px;">
+                        <div class="status-text" style="margin-top: 15px;">No recent sessions found.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view-panel" id="settings">
+                <h2>Preferences</h2>
+                <div class="card">
+                    <div class="switch-container" style="margin-bottom: 12px;">
+                        <div class="card-header" style="margin:0;">Dark Mode UI</div>
+                        <label class="switch">
+                            <input type="checkbox" id="theme-toggle" onchange="toggleThemeUI()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="switch-container" style="margin-bottom: 12px;">
+                        <div>
+                            <div class="card-header" style="margin:0;">Ignore Accidental Launches</div>
+                            <div class="card-sub" style="margin:0;">Skip backup if playtime &lt; 5 mins.</div>
+                        </div>
+                        <label class="switch"><input type="checkbox" id="ignore-toggle" onchange="saveSettingsUI()"><span class="slider"></span></label>
+                    </div>
+                    <div class="switch-container" style="margin-bottom: 12px;">
+                        <div>
+                            <div class="card-header" style="margin:0;">Desktop Notifications</div>
+                            <div class="card-sub" style="margin:0;">Show Windows toast popups on save.</div>
+                        </div>
+                        <label class="switch"><input type="checkbox" id="notifications-toggle" onchange="saveSettingsUI()"><span class="slider"></span></label>
+                    </div>
+                    <div class="switch-container" style="margin-bottom: 12px;">
+                        <div>
+                            <div class="card-header" style="margin:0;">Compress Backups (.mcworld)</div>
+                            <div class="card-sub" style="margin:0;">Zip worlds to save huge disk space.</div>
+                        </div>
+                        <label class="switch"><input type="checkbox" id="compress-toggle" onchange="saveSettingsUI()"><span class="slider"></span></label>
+                    </div>
+                    <div class="switch-container" style="margin-bottom: 12px;">
+                        <div>
+                            <div class="card-header" style="margin:0;">True Auto-Detect World</div>
+                            <div class="card-sub" style="margin:0;">Auto-selects the world you just played.</div>
+                        </div>
+                        <label class="switch"><input type="checkbox" id="auto-detect-toggle" onchange="saveSettingsUI()"><span class="slider"></span></label>
+                    </div>
+                    <div class="switch-container" style="margin-bottom: 12px;">
+                        <div>
+                            <div class="card-header" style="margin:0;">Health Reminders</div>
+                            <div class="card-sub" style="margin:0;">Toast popup if you play for 3+ hours straight.</div>
+                        </div>
+                        <label class="switch"><input type="checkbox" id="health-reminders-toggle" onchange="saveSettingsUI()"><span class="slider"></span></label>
+                    </div>
+                    <div class="switch-container" style="margin-bottom: 12px;">
+                        <div>
+                            <div class="card-header" style="margin:0;">Backup Mod/Addon Packs</div>
+                            <div class="card-sub" style="margin:0;">Includes development behavior/resource packs.</div>
+                        </div>
+                        <label class="switch"><input type="checkbox" id="backup-addons-toggle" onchange="saveSettingsUI()"><span class="slider"></span></label>
+                    </div>
+                    <div class="switch-container" style="margin-bottom: 12px;">
+                        <div>
+                            <div class="card-header" style="margin:0;">Encryption Password</div>
+                            <div class="card-sub" style="margin:0;">Leave blank to disable. Locks your backups!</div>
+                        </div>
+                        <input type="password" id="encryption-input" placeholder="Secret Key" style="width: 100px; padding: 6px; border-radius: 6px; border: 1px solid var(--border-light);" onchange="saveSettingsUI()">
+                    </div>
+                    <div class="switch-container" style="margin-bottom:0;">
+                        <div>
+                            <div class="card-header" style="margin:0;">Smart Storage Limit</div>
+                            <div class="card-sub" style="margin:0;">Max archives to keep per world. (1-5)</div>
+                        </div>
+                        <input type="number" id="storage-input" min="1" max="5" value="5" style="width: 55px; text-align: center; padding: 8px;" onchange="saveSettingsUI()">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Custom Storage Path (Per-World)</div>
+                    <div class="card-sub">Route this specific world's backups to a cloud folder or USB.</div>
+                    <div class="input-row">
+                        <input type="text" id="byoc-path" value="Default (Documents/BedrockCapsule_Backups)" readonly>
+                        <button class="btn btn-outline" style="width: 90px; flex: none; height: 38px;" onclick="selectCustomPathUI()">Change</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <button class="btn-discord" style="margin-bottom: 12px;" onclick="openExternal('https://discord.com/oauth2/authorize?client_id=YOUR_BOT_ID')">Add BedrockCapsule to your Discord Server</button>
+                    <div class="card-sub" style="margin-bottom: 4px;">Target Channel ID</div>
+                    <input type="text" id="channel-input" placeholder="e.g. 110293847561029384" style="margin:0;" oninput="saveSettingsUI()">
+                    <div style="font-size: 11.5px; font-weight: 500; color: var(--text-muted); margin-top: 10px; line-height: 1.4; padding: 8px; background-color: var(--bg-base); border-radius: 6px; border: 1px solid var(--border-light);">*Note: You must enable 'Developer Mode' in Discord Settings (Advanced) to right-click and copy Channel IDs.</div>
+                </div>
+            </div>
+
+            <div class="footer">BedrockCapsule v2.1 • Created by NIVYT</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentArchives = [];
+    let currentWorlds = [];
+    let selectedWorld = "";
+
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+
+    function switchView(viewId, element) {
+        document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+        element.classList.add('active');
+        if(viewId === 'restore') refreshArchivesUI();
+        if(viewId === 'tracker') loadAnalyticsUI();
+    }
+
+    function toggleSelect(id) {
+        document.querySelectorAll('.custom-options').forEach(el => {
+            if(el.id !== id) el.classList.remove('open');
+        });
+        document.getElementById(id).classList.toggle('open');
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.custom-select-wrapper')) {
+            document.querySelectorAll('.custom-options').forEach(el => el.classList.remove('open'));
+        }
+    });
+
+    async function onAppReady() {
+        if (!window.pywebview || !window.pywebview.api) return;
+        try {
+            const config = await window.pywebview.api.load_config();
+            
+            document.getElementById('channel-input').value = config.channel_id || "";
+            document.getElementById('storage-input').value = Math.max(1, Math.min(5, parseInt(config.smart_storage) || 5));
+            document.getElementById('ignore-toggle').checked = config.ignore_launches !== false;
+            
+            document.getElementById('notifications-toggle').checked = config.desktop_notifications !== false;
+            document.getElementById('compress-toggle').checked = config.auto_compress === true;
+            
+            document.getElementById('auto-detect-toggle').checked = config.auto_detect_world === true;
+            document.getElementById('health-reminders-toggle').checked = config.health_reminders !== false;
+            document.getElementById('backup-addons-toggle').checked = config.backup_addons === true;
+            document.getElementById('encryption-input').value = config.encryption_key || "";
+            
+            // Ensure initial sync matches backend
+            const isDark = config.theme === 'dark';
+            document.getElementById('theme-toggle').checked = isDark;
+            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+
+            if (config.custom_path) document.getElementById('byoc-path').value = config.custom_path;
+
+            let savedWorld = config.target_world || "";
+            await refreshWorldsUI(savedWorld);
+            await refreshArchivesUI();
+            await loadAnalyticsUI();
+
+            if(config.auto_pilot) {
+                document.getElementById('auto-pilot-toggle').checked = true;
+                toggleAutoPilotUI();
+            }
+        } catch (e) {
+            console.error("App init error:", e);
+        }
+    }
+
+    if (window.pywebview && window.pywebview.api) {
+        onAppReady();
+    } else {
+        window.addEventListener('pywebviewready', onAppReady);
+    }
+
+    function openExternal(url) {
+        if (window.pywebview && window.pywebview.api && window.pywebview.api.open_external_url) {
+            window.pywebview.api.open_external_url(url);
+        } else {
+            window.open(url, '_blank');
+        }
+    }
+
+    function updateUIStatus(msg, color = 'var(--text-muted)') {
+        const statusEl = document.getElementById('global-status');
+        if(statusEl) {
+            statusEl.innerText = msg;
+            if (typeof color === 'string' && color.startsWith('--')) {
+                color = `var(${color})`;
+            }
+            statusEl.style.color = color;
+        }
+    }
+
+    function resetActions() {
+        const btns = document.querySelectorAll('.btn');
+        btns.forEach(b => { 
+            b.disabled = false; 
+            b.style.opacity = "1"; 
+            const og = b.getAttribute('data-og-text');
+            if (og) b.innerText = og;
+        });
+        setTimeout(() => { updateUIStatus('System ready.'); }, 3000);
+    }
+
+    function setProcessing(btnIdOrEl, originalText) {
+        const b = (typeof btnIdOrEl === 'string') ? document.getElementById(btnIdOrEl) : btnIdOrEl;
+        if(!b) return;
+        b.setAttribute('data-og-text', originalText);
+        b.disabled = true; b.style.opacity = "0.7"; b.innerText = "Processing...";
+    }
+
+    async function loadAnalyticsUI() {
+        if (!window.pywebview || !window.pywebview.api) return;
+        const config = await window.pywebview.api.load_config();
+        
+        let hours = (config.analytics_playtime_sec || 0) / 3600;
+        document.getElementById('total-playtime').innerText = hours.toFixed(1) + " Hrs";
+        
+        const totalArchives = await window.pywebview.api.get_total_archives_count();
+        document.getElementById('total-saves').innerText = totalArchives;
+        
+        const logs = await window.pywebview.api.get_session_logs();
+        const logsContainer = document.getElementById('session-logs-container');
+        if (logs && logs.length > 0) {
+            logsContainer.innerHTML = logs.map(log => {
+                const badgeClass = (log.status && log.status.includes('Skipped')) ? 'skipped' : 'success';
+                return `
+                <div class="log-item">
+                    <div class="log-info">
+                        <div class="log-world">${escapeHtml(log.world)} <span style="color: var(--text-muted); font-weight: 500;">• ${escapeHtml(log.duration)}</span></div>
+                        <div class="log-date">${escapeHtml(log.date)}</div>
+                    </div>
+                    <div class="log-badge ${badgeClass}">${escapeHtml(log.status)}</div>
+                </div>
+                `;
+            }).join('');
+        } else {
+            logsContainer.innerHTML = '<div class="status-text" style="margin-top: 15px;">No recent sessions found.</div>';
+        }
+    }
+
+    async function refreshWorldsUI(savedWorldName = "") {
+        if (!window.pywebview || !window.pywebview.api) return;
+        updateUIStatus("Scanning directories...", "var(--warning)");
+        const worlds = await window.pywebview.api.scan_worlds();
+        currentWorlds = worlds || [];
+        const optionsDiv = document.getElementById('world-options');
+        
+        if(currentWorlds.length > 0) {
+            selectedWorld = (savedWorldName && currentWorlds.includes(savedWorldName)) ? savedWorldName : currentWorlds[0];
+            document.getElementById('world-selected-text').innerText = selectedWorld;
+            optionsDiv.innerHTML = currentWorlds.map((w, idx) => `<div class="custom-option" onclick="selectWorldByIndex(${idx})">${escapeHtml(w)}</div>`).join('');
+            
+            const customRoute = await window.pywebview.api.get_world_route(selectedWorld);
+            document.getElementById('byoc-path').value = customRoute || "Default (Documents/BedrockCapsule_Backups)";
+        } else {
+            selectedWorld = "";
+            document.getElementById('world-selected-text').innerText = "No worlds found";
+            optionsDiv.innerHTML = '<div class="custom-option">No worlds found</div>';
+        }
+        updateUIStatus(`System ready. ${currentWorlds.length} worlds found.`, "var(--text-muted)");
+    }
+
+    function selectWorldByIndex(idx) {
+        if (currentWorlds[idx] !== undefined) {
+            selectWorld(currentWorlds[idx]);
+        }
+    }
+
+    async function selectWorld(w) {
+        selectedWorld = w;
+        document.getElementById('world-selected-text').innerText = w;
+        document.getElementById('world-options').classList.remove('open');
+        if (window.pywebview && window.pywebview.api) {
+            const customRoute = await window.pywebview.api.get_world_route(selectedWorld);
+            document.getElementById('byoc-path').value = customRoute || "Default (Documents/BedrockCapsule_Backups)";
+            saveSettingsUI();
+            refreshArchivesUI();
+        }
+    }
+
+    async function refreshArchivesUI() {
+        if (!window.pywebview || !window.pywebview.api) return;
+        currentArchives = await window.pywebview.api.get_archives_data(selectedWorld);
+        const container = document.getElementById('archive-list-container');
+        
+        if(currentArchives && currentArchives.length > 0) {
+            container.innerHTML = currentArchives.map((a, i) => `
+                <div class="archive-item">
+                    <div class="archive-info">
+                        <div class="archive-name">
+                            <span id="arc-span-${i}">${escapeHtml(a.name)}</span>
+                            <button class="icon-btn" title="Rename Tag" onclick="renameArchiveUI(${i})">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            </button>
+                        </div>
+                        <div class="archive-date">${escapeHtml(a.date)} • ${escapeHtml(a.size)}</div>
+                    </div>
+                    <div class="archive-actions">
+                        <button class="btn btn-outline" style="padding: 6px 14px; font-size:12px; height: 34px; flex: none;" onclick="exportMcworldByIndex(${i}, this)">.mcworld</button>
+                        <button class="btn btn-danger" style="padding: 6px 16px; font-size:12px; height: 34px; flex: none;" onclick="startRestoreByIndex(${i}, this)">Restore</button>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            container.innerHTML = `<div class="archive-item"><div class="archive-info"><div class="archive-name"><span>No archives found.</span></div></div></div>`;
+        }
+    }
+
+    async function renameArchiveUI(index) {
+        if (!currentArchives[index]) return;
+        const oldName = currentArchives[index].name;
+        const newName = prompt("Enter a new custom tag for this snapshot (timestamp is auto-preserved):", oldName);
+        if (newName !== null && newName.trim() !== "") {
+            const success = await window.pywebview.api.rename_archive(oldName, newName.trim(), selectedWorld);
+            if(success) refreshArchivesUI();
+        }
+    }
+
+    function exportMcworldByIndex(idx, btnEl) {
+        if (currentArchives[idx]) {
+            exportMcworldUI(currentArchives[idx].name, btnEl);
+        }
+    }
+
+    function startRestoreByIndex(idx, btnEl) {
+        if (currentArchives[idx]) {
+            startRestoreUI(currentArchives[idx].name, btnEl);
+        }
+    }
+
+    function saveSettingsUI() {
+        if (!window.pywebview || !window.pywebview.api) return;
+        const channel = document.getElementById('channel-input').value;
+        const auto = document.getElementById('auto-pilot-toggle').checked;
+        const theme = document.getElementById('theme-toggle').checked ? 'dark' : 'light';
+        const ignore = document.getElementById('ignore-toggle').checked;
+        let storage = parseInt(document.getElementById('storage-input').value) || 5;
+        if(storage < 1) storage = 1; if(storage > 5) storage = 5;
+        document.getElementById('storage-input').value = storage;
+        
+        const notifications = document.getElementById('notifications-toggle').checked;
+        const compress = document.getElementById('compress-toggle').checked;
+        
+        const autoDetect = document.getElementById('auto-detect-toggle').checked;
+        const health = document.getElementById('health-reminders-toggle').checked;
+        const addons = document.getElementById('backup-addons-toggle').checked;
+        const encKey = document.getElementById('encryption-input').value;
+        
+        window.pywebview.api.save_config(channel, auto, theme, ignore, storage, selectedWorld, notifications, compress, autoDetect, health, addons, encKey);
+    }
+
+    // FIXED THEME TOGGLE: Targets DOM explicitly for repaint safety
+    function toggleThemeUI() {
+        const isDark = document.getElementById('theme-toggle').checked;
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        saveSettingsUI();
+    }
+
+    function toggleAutoPilotUI() {
+        saveSettingsUI(); 
+        const state = document.getElementById('auto-pilot-toggle').checked;
+        const channel = document.getElementById('channel-input').value;
+        if (window.pywebview && window.pywebview.api) {
+            window.pywebview.api.toggle_auto_pilot(state, selectedWorld, channel);
+        }
+    }
+
+    async function selectCustomPathUI() {
+        if (!selectedWorld) { updateUIStatus("Error: No world selected!", "var(--danger)"); return; }
+        if (window.pywebview && window.pywebview.api) {
+            const newPath = await window.pywebview.api.select_custom_path();
+            if(newPath) {
+                document.getElementById('byoc-path').value = newPath;
+                await window.pywebview.api.save_world_route(selectedWorld, newPath);
+                refreshArchivesUI();
+            }
+        }
+    }
+
+    function startBackupUI() {
+        const channel = document.getElementById('channel-input').value;
+        if(!selectedWorld) { updateUIStatus("Error: No world selected!", "var(--danger)"); return; }
+        setProcessing('backup-btn', 'Run Manual Backup');
+        if (window.pywebview && window.pywebview.api) {
+            window.pywebview.api.trigger_backup(selectedWorld, channel);
+        }
+    }
+
+    function exportMcworldUI(folderName, btnEl) {
+        setProcessing(btnEl, '.mcworld');
+        if (window.pywebview && window.pywebview.api) {
+            window.pywebview.api.export_mcworld(folderName, selectedWorld);
+        }
+    }
+
+    function startRestoreUI(folderName, btnEl) {
+        setProcessing(btnEl, 'Restore');
+        if (window.pywebview && window.pywebview.api) {
+            window.pywebview.api.trigger_restore(folderName, selectedWorld);
+        }
+    }
+</script>
+
+</body>
+</html>

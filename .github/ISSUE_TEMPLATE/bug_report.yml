@@ -1,0 +1,80 @@
+name: 🐛 Bug Report
+description: Report an issue or unexpected behavior in BedrockCapsule
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue! Please provide as much detail as possible so we can diagnose and fix it quickly.
+
+  - type: input
+    id: version
+    attributes:
+      label: BedrockCapsule Version
+      description: What version of BedrockCapsule are you running? (e.g., v2.1)
+      placeholder: e.g., v2.1
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: What Windows version are you on?
+      options:
+        - Windows 11 (64-bit)
+        - Windows 10 (64-bit)
+        - Other / Windows Server
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mc_edition
+    attributes:
+      label: Minecraft Bedrock Edition
+      description: Which version of Minecraft Bedrock are you playing?
+      options:
+        - Minecraft Bedrock Standard (UWP / Microsoft Store)
+        - Minecraft Bedrock Preview / Beta
+        - Bedrock Dedicated Server (BDS)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the Bug
+      description: A clear and concise description of what happened.
+      placeholder: What went wrong?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Step by step instructions to reproduce the issue.
+      placeholder: |
+        1. Open BedrockCapsule
+        2. Launch Minecraft Bedrock and load world 'Survival'
+        3. Close Minecraft
+        4. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: Expected the capsule backup to trigger and save successfully.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Logs or Screenshots
+      description: Paste any error messages, terminal logs, or drag & drop screenshots here.
+      render: shell
