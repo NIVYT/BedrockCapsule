@@ -1,6 +1,6 @@
 <div align="center">
   <img src="logo.ico" alt="BedrockCapsule Logo" width="120" />
-  <h1>📦 BedrockCapsule v2.2</h1>
+  <h1>BedrockCapsule v2.2</h1>
   <p><strong>Automated, lightweight world backup, encryption & rollback utility for Minecraft Bedrock on Windows.</strong></p>
   
   <p>
@@ -14,32 +14,32 @@
 
 ---
 
-## 🌟 Overview
+## Overview
 
 **BedrockCapsule** is a companion desktop utility for Minecraft Bedrock Edition players on Windows. It silently monitors your play sessions in the background, automatically capturing timestamped backups the moment you close the game. Whether you encounter world corruption, accidental explosions, or want to branch your survival world, BedrockCapsule gives you instant rollback capability.
 
 > [!NOTE]
-> ### 📢 Rebranding Announcement
+> ### Rebranding Announcement
 > **BedrockCapsule** was originally developed and released under the name **NIVYT Backup Copilot**. 
 > As the project matured from a personal script into a full-featured, open-source desktop ecosystem with automated LevelDB protection, capsule encryption, `.mcworld` exporting, and Discord integration, it was rebranded to **BedrockCapsule** to better reflect its identity as a dedicated capsule backup system for the entire Minecraft Bedrock community.
 
 ---
 
-## ✨ Features
+## Features
 
-- 🔄 **Auto-Pilot Backups**: Automatically identifies your active world by checking `levelname.txt` and timestamp updates, taking a clean snapshot when Minecraft closes.
-- ⏪ **One-Click Rollback & Restore**: Restore any archived snapshot directly into your Minecraft worlds directory with built-in safety rollback in case of decompression errors.
-- 📤 **Export to `.mcworld`**: Export any snapshot directly to a universal `.mcworld` file for sharing with friends or importing into other devices.
-- 🔒 **Capsule Encryption**: Optional custom XOR encryption passkey to protect your world files and sensitive maps from unauthorized access.
-- 🌓 **Dark & Light Mode UI**: Beautiful, frameless desktop interface with glassmorphic elements, dynamic status badges, and smooth theme switching.
-- 🔔 **Discord Webhook Gateway**: Sends rich embed status cards to your Discord channel showing world name, backup size, trigger type, and timestamp.
-- 🗂️ **Smart Storage Rotation**: Configurable snapshot retention limit per world (default: 5) to save disk space while keeping critical checkpoints.
-- 📌 **System Tray Daemon**: Sits quietly in the Windows system tray with quick-action shortcuts for manual backups and instant directory access.
-- ⚡ **Zero Game Lag**: Uses minimal memory and non-intrusive `psutil` process polling with zero game overhead.
+- **Auto-Pilot Backups**: Automatically identifies your active world by checking `levelname.txt` and timestamp updates, taking a clean snapshot when Minecraft closes.
+- **One-Click Rollback & Restore**: Restore any archived snapshot directly into your Minecraft worlds directory with built-in safety rollback in case of decompression errors.
+- **Export to `.mcworld`**: Export any snapshot directly to a universal `.mcworld` file for sharing with friends or importing into other devices.
+- **Capsule Encryption**: Optional custom XOR encryption passkey to protect your world files and sensitive maps from unauthorized access.
+- **Dark & Light Mode UI**: Beautiful, frameless desktop interface with glassmorphic elements, dynamic status badges, and smooth theme switching.
+- **Discord Webhook Gateway**: Sends rich embed status cards to your Discord channel showing world name, backup size, trigger type, and timestamp.
+- **Smart Storage Rotation**: Configurable snapshot retention limit per world (default: 5) to save disk space while keeping critical checkpoints.
+- **System Tray Daemon**: Sits quietly in the Windows system tray with quick-action shortcuts for manual backups and instant directory access.
+- **Zero Game Lag**: Uses minimal memory and non-intrusive `psutil` process polling with zero game overhead.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 graph TD
@@ -59,7 +59,7 @@ graph TD
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 BedrockCapsule/
@@ -75,7 +75,7 @@ BedrockCapsule/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - **Operating System:** Windows 10 or 11 (64-bit)
@@ -85,14 +85,14 @@ BedrockCapsule/
 
 ---
 
-### 📥 Option 1: Installer (Recommended for Users)
+### Option 1: Installer (Recommended for Users)
 1. Download `BedrockCapsule_Setup_v2.2.exe` from the [Releases](https://github.com/NIVYT/BedrockCapsule/releases) page.
 2. Run the installer and follow the setup wizard.
 3. Check **"Launch on Windows startup"** if you want automated silent backups in the background.
 
 ---
 
-### 🛠️ Option 2: Running from Source
+### Option 2: Running from Source
 1. Clone this repository:
    ```bash
    git clone https://github.com/NIVYT/BedrockCapsule.git
@@ -109,7 +109,7 @@ BedrockCapsule/
 
 ---
 
-### 🔨 Building the Standalone Executable
+### Building the Standalone Executable
 To compile your own `.exe`:
 1. Run the automated build script:
    ```cmd
@@ -121,7 +121,7 @@ To compile your own `.exe`:
 
 ---
 
-## ⚙️ Configuration & Customization
+## Configuration & Customization
 
 All application settings are stored locally in:
 ```
@@ -137,7 +137,7 @@ All application settings are stored locally in:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions, issues, and feature requests are welcome!
 Feel free to check the [issues page](https://github.com/NIVYT/BedrockCapsule/issues) if you want to contribute.
@@ -150,12 +150,12 @@ Feel free to check the [issues page](https://github.com/NIVYT/BedrockCapsule/iss
 
 ---
 
-## 📄 License
+## License
 
 Distributed under the **MIT License**. See `LICENSE` for more information.
 
 ---
 
 <div align="center">
-  <p>Crafted with ❤️ by <strong>NIVYT</strong> for the Minecraft Bedrock Community.</p>
+  <p>Crafted by <strong>NIVYT</strong> for the Minecraft Bedrock Community.</p>
 </div>
