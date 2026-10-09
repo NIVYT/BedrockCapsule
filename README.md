@@ -1,11 +1,11 @@
 <div align="center">
   <img src="logo.ico" alt="BedrockCapsule Logo" width="120" />
-  <h1>📦 BedrockCapsule v2.1</h1>
+  <h1>📦 BedrockCapsule v2.2</h1>
   <p><strong>Automated, lightweight world backup, encryption & rollback utility for Minecraft Bedrock on Windows.</strong></p>
   
   <p>
-    <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/Release_Notes-v2.1-orange?style=for-the-badge" alt="Release Notes" /></a>
-    <a href="https://github.com/NIVYT/BedrockCapsule/releases"><img src="https://img.shields.io/badge/Version-v2.1-blue?style=for-the-badge&logo=github" alt="Version 2.1" /></a>
+    <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/Release_Notes-v2.2-orange?style=for-the-badge" alt="Release Notes" /></a>
+    <a href="https://github.com/NIVYT/BedrockCapsule/releases"><img src="https://img.shields.io/badge/Version-v2.2-blue?style=for-the-badge&logo=github" alt="Version 2.2" /></a>
     <a href="https://discord.com"><img src="https://img.shields.io/badge/Discord-Integration-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord Integration" /></a>
     <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.10+-yellow?style=for-the-badge&logo=python&logoColor=white" alt="Python Version" /></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT" /></a>
@@ -68,7 +68,8 @@ BedrockCapsule/
 ├── logo.ico                 # Application icon & branding
 ├── requirements.txt         # Root Python dependencies
 ├── build.bat                # Automated one-click build script
-├── BedrockCapsule_2.1.spec  # PyInstaller packaging configuration
+├── setup.iss                # Inno Setup wizard compiler script
+├── BedrockCapsule_2.2.spec  # PyInstaller packaging configuration
 └── README.md                # Documentation & guides
 ```
 
@@ -85,7 +86,7 @@ BedrockCapsule/
 ---
 
 ### 📥 Option 1: Installer (Recommended for Users)
-1. Download `BedrockCapsule_Setup_v2.1.exe` from the [Releases](https://github.com/NIVYT/BedrockCapsule/releases) page.
+1. Download `BedrockCapsule_Setup_v2.2.exe` from the [Releases](https://github.com/NIVYT/BedrockCapsule/releases) page.
 2. Run the installer and follow the setup wizard.
 3. Check **"Launch on Windows startup"** if you want automated silent backups in the background.
 
@@ -115,7 +116,8 @@ To compile your own `.exe`:
    .\build.bat
    ```
 2. The compiled binary will be output to:
-   - **Standalone Executable:** `dist/BedrockCapsule_2.1.exe`
+   - **Standalone Executable:** `dist/BedrockCapsule_2.2.exe`
+   - **Setup Installer:** `Output/BedrockCapsule_Setup_v2.2.exe`
 
 ---
 

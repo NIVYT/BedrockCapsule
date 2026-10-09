@@ -1,6 +1,6 @@
 @echo off
 echo ==============================================
-echo BedrockCapsule 2.1 - Build Script
+echo BedrockCapsule 2.2 - Build Script
 echo ==============================================
 
 :: Find Python and PyInstaller
@@ -44,7 +44,7 @@ if exist "requirements.txt" (
 echo.
 echo [2/3] Compiling Python executable with PyInstaller...
 echo Using PyInstaller: %PYINSTALLER_CMD%
-"%PYINSTALLER_CMD%" --clean -y BedrockCapsule_2.1.spec
+"%PYINSTALLER_CMD%" --clean -y BedrockCapsule_2.2.spec
 
 if %ERRORLEVEL% neq 0 (
     echo.
@@ -70,13 +70,17 @@ if %ERRORLEVEL% equ 0 (
 )
 
 if defined ISCC_CMD (
-    echo Using Inno Setup: "%ISCC_CMD%"
-    "%ISCC_CMD%" setup.iss
-    if errorlevel 1 (
-        echo.
-        echo [ERROR] Inno Setup failed to pack the installer!
-        ping 127.0.0.1 -n 6 >nul
-        exit /b 1
+    if exist "setup.iss" (
+        echo Using Inno Setup: "%ISCC_CMD%"
+        "%ISCC_CMD%" setup.iss
+        if errorlevel 1 (
+            echo.
+            echo [ERROR] Inno Setup failed to pack the installer!
+            ping 127.0.0.1 -n 6 >nul
+            exit /b 1
+        )
+    ) else (
+        echo [INFO] setup.iss not found. Standalone executable ready in the "dist" folder!
     )
 ) else (
     echo.

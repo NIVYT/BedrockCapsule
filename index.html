@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BedrockCapsule 2.1</title>
+    <title>BedrockCapsule 2.2</title>
     <style>
         /* FIXED THEME ENGINE: Explicit targeting prevents Windows WebView caching bugs */
         [data-theme="light"] {
@@ -94,7 +94,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
         h2 { font-size: 26px; font-weight: 800; color: var(--text-main); margin-bottom: 5px; margin-top: -5px; flex-shrink: 0;}
-        .card { background-color: var(--bg-app); border: 1px solid var(--border-light); border-radius: 8px; padding: 18px; box-shadow: var(--shadow-sm); flex-shrink: 0;}
+        .card { background-color: var(--bg-app); border: 1px solid var(--border-light); border-radius: 8px; padding: 18px; box-shadow: var(--shadow-sm); flex-shrink: 0; position: relative; overflow: visible;}
         .card-header { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
         .card-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
 
@@ -182,11 +182,11 @@
     <div class="titlebar pywebview-drag-region">
         <div class="title-left">
             <img src="logo.ico" alt="Logo" class="title-logo">
-            <span class="title-text">BedrockCapsule 2.1</span>
+            <span class="title-text">BedrockCapsule 2.2</span>
         </div>
-        <div class="window-controls">
-            <button class="win-btn" onclick="window.pywebview && window.pywebview.api && window.pywebview.api.minimize_window()">—</button>
-            <button class="win-btn close" onclick="window.pywebview && window.pywebview.api && window.pywebview.api.close_window()">✕</button>
+        <div class="window-controls pywebview-no-drag" style="-webkit-app-region: no-drag;">
+            <button class="win-btn pywebview-no-drag" style="-webkit-app-region: no-drag;" onclick="window.pywebview && window.pywebview.api && window.pywebview.api.minimize_window()">—</button>
+            <button class="win-btn close pywebview-no-drag" style="-webkit-app-region: no-drag;" onclick="window.pywebview && window.pywebview.api && window.pywebview.api.close_window()">✕</button>
         </div>
     </div>
 
@@ -386,14 +386,14 @@
                 </div>
 
                 <div class="card">
-                    <button class="btn-discord" style="margin-bottom: 12px;" onclick="openExternal('https://discord.com/oauth2/authorize?client_id=YOUR_BOT_ID')">Add BedrockCapsule to your Discord Server</button>
+                    <button class="btn-discord" style="margin-bottom: 12px;" onclick="openExternal('https://nivyt.pages.dev/bot')">Add BedrockCapsule Bot to your Discord Server</button>
                     <div class="card-sub" style="margin-bottom: 4px;">Target Channel ID</div>
-                    <input type="text" id="channel-input" placeholder="e.g. 110293847561029384" style="margin:0;" oninput="saveSettingsUI()">
+                    <input type="text" id="channel-input" placeholder="e.g. 110293847561029384" style="margin:0;" onchange="saveSettingsUI()">
                     <div style="font-size: 11.5px; font-weight: 500; color: var(--text-muted); margin-top: 10px; line-height: 1.4; padding: 8px; background-color: var(--bg-base); border-radius: 6px; border: 1px solid var(--border-light);">*Note: You must enable 'Developer Mode' in Discord Settings (Advanced) to right-click and copy Channel IDs.</div>
                 </div>
             </div>
 
-            <div class="footer">BedrockCapsule v2.1 • Created by NIVYT</div>
+            <div class="footer">BedrockCapsule v2.2 • Created by NIVYT</div>
         </div>
     </div>
 </div>
@@ -509,7 +509,12 @@
             const og = b.getAttribute('data-og-text');
             if (og) b.innerText = og;
         });
-        setTimeout(() => { updateUIStatus('System ready.'); }, 3000);
+        setTimeout(() => { 
+            const statusEl = document.getElementById('global-status');
+            if (statusEl && !statusEl.innerText.toLowerCase().includes('error')) {
+                updateUIStatus('System ready.'); 
+            }
+        }, 4000);
     }
 
     function setProcessing(btnIdOrEl, originalText) {
@@ -706,6 +711,9 @@
     }
 
     function startRestoreUI(folderName, btnEl) {
+        if (!confirm(`Warning: Are you sure you want to restore "${folderName}"?\n\nThis will irreversibly overwrite your current world state. Ensure Minecraft is fully closed before proceeding.`)) {
+            return;
+        }
         setProcessing(btnEl, 'Restore');
         if (window.pywebview && window.pywebview.api) {
             window.pywebview.api.trigger_restore(folderName, selectedWorld);
