@@ -4,10 +4,10 @@
   <p>Automated world backup, encryption & rollback for Minecraft Bedrock on Windows.</p>
 
   <p>
-    <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/Release_Notes-v2.3-orange?style=for-the-badge" alt="Release Notes" /></a>
-    <a href="https://github.com/NIVYT/BedrockCapsule/releases"><img src="https://img.shields.io/badge/Version-v2.3-0ba071?style=for-the-badge&logo=github" alt="Version 2.3" /></a>
-    <a href="https://discord.com"><img src="https://img.shields.io/badge/Discord-Integration-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord Integration" /></a>
-    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT" /></a>
+    <a href="https://github.com/NIVYT/BedrockCapsule/releases/latest"><img src="https://img.shields.io/badge/version-v2.3-0ba071?style=flat-square&logo=github&logoColor=white" alt="Version 2.3" /></a>
+    <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/release%20notes-v2.3-333333?style=flat-square" alt="Release Notes" /></a>
+    <a href="https://discord.com"><img src="https://img.shields.io/badge/discord-integration-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord Integration" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-0ba071?style=flat-square" alt="License: MIT" /></a>
   </p>
 </div>
 
